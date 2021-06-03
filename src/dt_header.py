@@ -15,7 +15,7 @@ class Detectron2Header:
     def generate_test_command(cls, args, dist_url):
         dt_src = f'{args.root_dir}/core/train_net.py'
         command = ["python3", dt_src,
-                   "--datapath", args.datapath,
+                   "--data_path", args.data_path,
                    "--num-gpus", args.num_gpu,
                    "--config-file", args.model_config,
                    "--dist-url", dist_url,

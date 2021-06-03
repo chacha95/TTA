@@ -10,7 +10,7 @@ from dt_header import Detectron2Header
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='TTA')
     parser.add_argument('--root_dir', type=str, default=root_dir, help='root directory')
-    parser.add_argument('--datapath', type=str, default='/mnt/dataset-storage/COCO-2017', help='dataset path')
+    parser.add_argument('--data_path', type=str, default='/mnt/dataset-storage/COCO-2017', help='dataset path')
     parser.add_argument('--output_dir', type=str, default=f'{root_dir}/model', help='output path')
     parser.add_argument('--model_weights', type=str, default=f'{root_dir}/model/model-R101-FPN-3x.pkl', help='model weight path')
     parser.add_argument('--model_config', type=str, default=f'{root_dir}/model/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml',

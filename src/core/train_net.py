@@ -165,7 +165,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument('--datapath', help='dataset path')
+    parser.add_argument('--data_path', help='dataset path')
     args = parser.parse_args()
     launch(
         main,
