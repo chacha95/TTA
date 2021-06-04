@@ -2,13 +2,22 @@ FROM nvidia/cuda:10.1-cudnn7-devel
 ENV PYTHONUNBUFFERED 1
 ENV LC_ALL C.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && apt-get install -y \
-	python3-opencv ca-certificates python3-dev wget git && \
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    && apt-get install -y apt-utils ca-certificates python3-dev wget git sudo python3-opencv \
+	&& python3 python3-dev python3-dev python3-setuptools gcc git openssh-client less curl libxtst-dev \
+	libxext-dev libxrender-dev libfreetype6-dev libfontconfig1 libgtk2.0-0 libxslt1.1 libxxf86vm1 \
     rm -rf /var/lib/apt/lists/*
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
-# install pip
-ENV PATH="/root/.local/bin:${PATH}"
+# create a non-root user
+ARG USER_ID=1000
+RUN useradd -m --no-log-init --system  --uid ${USER_ID} appuser -g sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER appuser
+WORKDIR /home/appuser/src
+
+ENV PATH="/home/appuser/.local/bin:${PATH}"
 RUN wget https://bootstrap.pypa.io/get-pip.py && \
 	python3 get-pip.py --user && \
 	rm get-pip.py
@@ -22,9 +31,12 @@ RUN pip install --user 'git+https://github.com/facebookresearch/fvcore'
 RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
 ENV FORCE_CUDA="1"
 ENV FVCORE_CACHE="/tmp"
-# install detectron2
 ARG TORCH_CUDA_ARCH_LIST="Kepler;Kepler+Tesla;Maxwell;Maxwell+Tegra;Pascal;Volta;Turing"
 ENV TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
 RUN pip install --user -e detectron2_repo
 
-COPY src /home/src
+COPY src /home/appuser/src
+# pretrained model download
+ENTRYPOINT ["/home/appuser/src/script/download_model.sh"]
+# install pycharm
+CMD ["/home/appuser/src/script/pycharm_install.sh"]
