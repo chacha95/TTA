@@ -29,37 +29,60 @@ __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 # from detectron2.data import transforms as T
 # augs = T.AugmentationList([
 #     T.RandomBrightness(0.9, 1.1),
-#     T.RandomFlip(prob=0.5),
-#     T.RandomCrop("absolute", (640, 640))
 # ])  # type: T.Augmentation
 #
 # input = T.AugInput(image, boxes=boxes)
 # transform = augs(input)
 # image_transformed = input.image  # new image
 
-MIN_SIZES=[400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
-MAX_SIZE=4000
-FLIP=True
+
+# this parameter change!
+class TTA(object):
+    _flip = False
+    _multi_scale_mins = []
+    _multi_scale_max = None
+    _color_trans = []
+
+    # enable augmentation
+    # _flip = True
+    # _multi_scale_mins = [400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
+    # _multi_scale_max = 4000
+    # _color_trans = True
+
+    @classmethod
+    def get_multi_scale(cls):
+        return cls._multi_scale_mins, cls._multi_scale_max
+
+    @classmethod
+    def get_flip(cls):
+        return cls._flip
+
+    @classmethod
+    def get_color_trans(cls):
+        return cls._color_trans
+
 
 class DatasetMapperTTA:
     @configurable
-    def __init__(self, min_sizes: List[int], max_size: int, flip: bool):
+    def __init__(self, min_sizes: List[int], max_size: int, flip: bool, color_trans: List[float]):
         """
         Args:
             min_sizes: list of short-edge size to resize the image to
             max_size: maximum height or width of resized images
             flip: whether to apply flipping augmentation
+            color_trans: color transformation info
         """
         self.min_sizes = min_sizes
         self.max_size = max_size
         self.flip = flip
+        self.color_trans = color_trans
 
     @classmethod
-    def from_config(cls, cfg):
+    def from_config(cls):
         return {
-            "min_sizes": MIN_SIZES,
-            "max_size": MAX_SIZE,
-            "flip": FLIP,
+            "min_sizes": None,
+            "max_size": None,
+            "flip": None,
         }
 
     def __call__(self, dataset_dict):
@@ -119,7 +142,10 @@ class GeneralizedRCNNWithTTA(nn.Module):
         self.cfg = cfg.clone()
         self.model = model
         self.batch_size = batch_size
-        self.tta_mapper = DatasetMapperTTA(MIN_SIZES, MAX_SIZE, FLIP)
+        min_sizes, max_size = TTA.get_multi_scale()
+        flip = TTA.get_flip()
+        color_trans = TTA.get_color_trans()
+        self.tta_mapper = DatasetMapperTTA(min_sizes, max_size, flip, color_trans)
 
     def __call__(self, batched_inputs):
         def _read_image(dataset_dict):
