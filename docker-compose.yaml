@@ -12,6 +12,13 @@ services:
     container_name: "detectron2_header_1.0v"
     volumes:
       - "${DATASET_STORAGE}:/home/appuser/mnt/dataset-storage"
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.PyCharm:/home/appuser/.PyCharm
+      - ~/.PyCharm.java:/home/appuser/.java
+      - ~/.PyCharm.py2:/usr/local/lib/python2.7
+      - ~/.PyCharm.py3:/usr/local/lib/python3.7
+      - ~/.PyCharm.share:/home/appuser/.local/share/JetBrains
+      - ~/Project:/home/appuser/Project 
     deploy:
       resources:
         limits:

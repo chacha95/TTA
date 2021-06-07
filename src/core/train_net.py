@@ -41,8 +41,9 @@ from detectron2.evaluation import (
 
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-root_dir = os.path.join("/".join(os.path.abspath(__file__).split(os.path.sep)[:-2]))
+root_dir = os.path.join("/".join(os.    path.abspath(__file__).split(os.path.sep)[:-2]))
 sys.path.insert(1, root_dir)
+import dataset.register_custom_dataset as customDataset
 
 
 class Trainer(DefaultTrainer):
@@ -135,6 +136,8 @@ def setup(args):
 
 def main(args):
     cfg = setup(args)
+    # register custom dataset
+    customDataset.regist_custom_dataset(args.datapath)
 
     if args.eval_only:
         model = Trainer.build_model(cfg)
@@ -156,16 +159,16 @@ def main(args):
     trainer = Trainer(cfg)
     trainer.resume_or_load(resume=args.resume)
 
-    if cfg.TEST.AUG.ENABLED:
-        trainer.register_hooks(
-            [hooks.EvalHook(0, lambda: trainer.test_with_TTA(cfg, trainer.model))]
-        )
+    # if cfg.TEST.AUG.ENABLED:
+    #     trainer.register_hooks(
+    #         [hooks.EvalHook(0, lambda: trainer.test_with_TTA(cfg, trainer.model))]
+    #     )
     return trainer.train()
 
 
 if __name__ == "__main__":
     parser = default_argument_parser()
-    parser.add_argument('--data_path', help='dataset path')
+    parser.add_argument('--datapath', help='dataset path')
     args = parser.parse_args()
     launch(
         main,
