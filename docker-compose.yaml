@@ -9,7 +9,7 @@ services:
       - .env
     image: "detectron2_header:1.0v"
     tty: true
-    container_name: "${IMAGE_NAME}_${IMAGE_VERSION}"
+    container_name: "detectron2_header_1.0v"
     volumes:
       - "${DATASET_STORAGE}:/home/appuser/mnt/dataset-storage"
     deploy:

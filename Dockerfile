@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     && apt-get install -y apt-utils ca-certificates wget git sudo python3-opencv python3-dev \
+    openssh-client less curl libxtst-dev libxext-dev libxrender-dev libfreetype6-dev libfontconfig1 libgtk2.0-0 libxslt1.1 libxxf86vm1 \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
@@ -32,12 +33,14 @@ RUN pip install --no-cache-dir --user 'git+https://github.com/facebookresearch/f
 RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
 RUN pip install --no-cache-dir --user -e detectron2_repo
 
+# install pycharm tar file
+ENV file="/home/appuser/pycharm.tar.gz"
+RUN wget "https://download.jetbrains.com/python/pycharm-community-2020.3.1.tar.gz?_ga=2.208079378.1482907034.1608610329-1913990257.1603182848" -O ${file} \
+    && tar -xvf ${file} -C /home/appuser && rm -rf ${file}
+RUN echo "alias pycharm='bash /home/appuser/pycharm-community-2020.3.1/bin/pycharm.sh'" >> ~/.bashrc
+RUN ["/bin/bash", "-c", "source ~/.bashrc"]
+
 # COPY directory
 COPY src /home/appuser/src
 # pretrained model download
 ENTRYPOINT ["/home/appuser/src/script/download_model.sh"]
-
-# install pycharm
-RUN python3 python3-setuptools openssh-client less curl libxtst-dev \
-	libxext-dev libxrender-dev libfreetype6-dev libfontconfig1 libgtk2.0-0 libxslt1.1 libxxf86vm1 \
-CMD ["/home/appuser/src/script/pycharm_install.sh"]
