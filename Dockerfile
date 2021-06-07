@@ -1,11 +1,10 @@
 FROM nvidia/cuda:10.1-cudnn7-devel
-ENV PYTHONUNBUFFERED 1
 ENV LC_ALL C.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
     && apt-get install -y apt-utils ca-certificates wget git sudo python3-opencv python3-dev \
-    openssh-client less curl libxext-dev libxrender-dev libfreetype6-dev libfontconfig1 libgtk2.0-0 libxslt1.1 libxxf86vm1 \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
@@ -17,9 +16,9 @@ USER appuser
 WORKDIR /home/appuser
 
 ENV PATH="/home/appuser/.local/bin:${PATH}"
-RUN wget https://bootstrap.pypa.io/get-pip.py && \
-	python3 get-pip.py --user && \
-	rm get-pip.py
+RUN wget https://bootstrap.pypa.io/get-pip.py \
+    && python3 get-pip.py --user \
+	&& rm get-pip.py
 
 # install torch
 RUN pip install --no-cache-dir --user torch==1.8 torchvision==0.9 -f https://download.pytorch.org/whl/cu101/torch_stable.html
@@ -39,9 +38,12 @@ COPY src /home/appuser/src
 RUN wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_101_FPN_3x/137851257/model_final_f6e8b1.pkl" \
      -O "/home/appuser/src/model/model-R101-FPN-3x.pkl"
 
-# pycharm install
-ENV file="/home/appuser/pycharm.tar.gz"
-RUN wget "https://download.jetbrains.com/python/pycharm-community-2020.3.1.tar.gz?_ga=2.208079378.1482907034.1608610329-1913990257.1603182848" -O ${file} \
-    && tar -xvf ${file} -C /home/appuser && rm -rf ${file}
-RUN echo "alias pycharm='bash /home/appuser/pycharm-community-2020.3.1/bin/pycharm.sh'" >> ~/.bashrc
-RUN ["/bin/bash", "-c", "source ~/.bashrc"]
+# install COCO2017 dataset
+ENV COCO_IMG="/home/appuser/dataset/COCO2017/val2017.zip"
+RUN wget "http://images.cocodataset.org/zips/val2017.zip" -O ${COCO_IMG} \
+    && sudo unzip ${COCO_IMG} && sudo rm -rf ${COCO_IMG}
+ENV COCO_ANNOTATION="/home/appuser/dataset/COCO2017/annotations_trainval2017.zip"
+RUN wget "http://images.cocodataset.org/annotations/annotations_trainval2017.zip" -O ${COCO_ANNOTATION} \
+    && sudo unzip ${COCO_ANNOTATION} && sudo rm -rf ${COCO_ANNOTATION}
+
+#ENTRYPOINT ["python3", "run"]
