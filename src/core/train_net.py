@@ -1,24 +1,10 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-"""
-Detection Training Script.
-
-This scripts reads a given config file and runs the training or evaluation.
-It is an entry point that is made to train standard models in detectron2.
-
-In order to let one script support training of many models,
-this script contains logic that are specific to these built-in models and therefore
-may not be suitable for your own project.
-For example, your research project perhaps only needs a single "evaluator".
-
-Therefore, we recommend you to use detectron2 as an library and take
-this file as an example of how to use the library.
-You may want to write your own script with your datasets and other customizations.
-"""
 from collections import OrderedDict
 import logging
 import os
+import sys
 import torch
 
 import detectron2.utils.comm as comm
@@ -39,21 +25,12 @@ from detectron2.evaluation import (
     verify_results,
 )
 
-import sys
-# insert at 1, 0 is the script path (or '' in REPL)
 root_dir = os.path.join("/".join(os.    path.abspath(__file__).split(os.path.sep)[:-2]))
 sys.path.insert(1, root_dir)
 import dataset.register_custom_dataset as customDataset
 
 
 class Trainer(DefaultTrainer):
-    """
-    We use the "DefaultTrainer" which contains pre-defined default logic for
-    standard training workflow. They may not work for you, especially if you
-    are working on a new research project. In that case you can write your
-    own training loop. You can use "tools/plain_train_net.py" as an example.
-    """
-
     @classmethod
     def build_evaluator(cls, cfg, dataset_name, output_folder=None):
         """
@@ -107,8 +84,6 @@ class Trainer(DefaultTrainer):
     @classmethod
     def test_with_TTA(cls, cfg, model):
         logger = logging.getLogger("detectron2.trainer")
-        # In the end of training, run an evaluation with TTA
-        # Only support some R-CNN models.
         logger.info("Running inference with test-time augmentation ...")
         model = GeneralizedRCNNWithTTA(cfg, model)
         evaluators = [
@@ -134,44 +109,26 @@ def setup(args):
     return cfg
 
 
-def main(args):
+def test(args):
     cfg = setup(args)
-    # register custom dataset
-    customDataset.regist_custom_dataset(args.datapath)
-
-    if args.eval_only:
-        model = Trainer.build_model(cfg)
-        DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(
-            cfg.MODEL.WEIGHTS, resume=args.resume
-        )
-        res = Trainer.test(cfg, model)
-        if cfg.TEST.AUG.ENABLED:
-            res.update(Trainer.test_with_TTA(cfg, model))
-        if comm.is_main_process():
-            verify_results(cfg, res)
-        return res
-
-    """
-    If you'd like to do anything fancier than the standard training logic,
-    consider writing your own training loop (see plain_train_net.py) or
-    subclassing the trainer.
-    """
-    trainer = Trainer(cfg)
-    trainer.resume_or_load(resume=args.resume)
-
+    model = Trainer.build_model(cfg)
+    DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(cfg.MODEL.WEIGHTS, resume=args.resume)
+    res = Trainer.test(cfg, model)
     if cfg.TEST.AUG.ENABLED:
-        trainer.register_hooks(
-            [hooks.EvalHook(0, lambda: trainer.test_with_TTA(cfg, trainer.model))]
-        )
-    return trainer.train()
+        res.update(Trainer.test_with_TTA(cfg, model))
+    if comm.is_main_process():
+        verify_results(cfg, res)
+    return res
 
 
 if __name__ == "__main__":
     parser = default_argument_parser()
     parser.add_argument('--datapath', help='dataset path')
     args = parser.parse_args()
+    # register custom dataset
+    customDataset.regist_custom_dataset(args.datapath)
     launch(
-        main,
+        test,
         args.num_gpus,
         num_machines=args.num_machines,
         machine_rank=args.machine_rank,

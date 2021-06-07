@@ -35,8 +35,8 @@ RUN pip install --no-cache-dir --user -e detectron2_repo
 # COPY directory
 COPY src /home/appuser/src
 # pretrained model download
-RUN wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_101_FPN_3x/137851257/model_final_f6e8b1.pkl" \
-     -O "/home/appuser/src/model/model-R101-FPN-3x.pkl"
+RUN wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl" \
+     -O "/home/appuser/src/model/model.pkl"
 
 # install COCO2017 dataset
 ENV COCO_IMG="/home/appuser/dataset/COCO2017/val2017.zip"

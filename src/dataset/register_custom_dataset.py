@@ -9,4 +9,4 @@ def regist_custom_dataset(dataset_dir):
     image_root = join(dataset_dir, "val2017")
     # BoxMode.XYXY_ABS -> 0
     # BoxMode.XYWH_ABS -> 1
-    register_coco_instances("custom_test", {"bbox_mode": 1}, json_file, image_root)
+    register_coco_instances("coco2017val", {"bbox_mode": 1}, json_file, image_root)
