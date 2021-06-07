@@ -15,7 +15,7 @@ from detectron2.data.transforms import (
     RandomFlip,
     ResizeShortestEdge,
     ResizeTransform,
-    apply_augmentations,
+    apply_augmentations
 )
 from detectron2.structures import Boxes, Instances
 
@@ -25,10 +25,21 @@ from .roi_heads.fast_rcnn import fast_rcnn_inference_single_image
 
 __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
+# Define a sequence of augmentations:
+# from detectron2.data import transforms as T
+# augs = T.AugmentationList([
+#     T.RandomBrightness(0.9, 1.1),
+#     T.RandomFlip(prob=0.5),
+#     T.RandomCrop("absolute", (640, 640))
+# ])  # type: T.Augmentation
+#
+# input = T.AugInput(image, boxes=boxes)
+# transform = augs(input)
+# image_transformed = input.image  # new image
+
 MIN_SIZES=[400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
 MAX_SIZE=4000
 FLIP=True
-
 
 class DatasetMapperTTA:
     @configurable
