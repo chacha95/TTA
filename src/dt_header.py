@@ -2,7 +2,6 @@ from typing import List
 import subprocess
 
 from utils.util import create_random_port
-from tta import TTA
 
 
 class Detectron2Header(object):
@@ -12,22 +11,11 @@ class Detectron2Header(object):
         dist_url = create_random_port()
         command = cls.tta(args)
         subprocess.Popen(command)
-
-        # test command
         command = cls.generate_test_command(args, dist_url)
         subprocess.Popen(command)
 
     @classmethod
     def tta(cls, args) -> List[str]:
-        if args.TTA:
-            if args.flip:
-                TTA.set_flip(flip=True)
-            if args.multi_scale:
-                # TTA.set_multi_scale([400, 500, 600, 700, 800, 900, 1000, 1100, 1200])
-                TTA.set_multi_scale([400, 500, 600, 700])
-            if args.contrast:
-                TTA.set_contrast([1.0, 1.0])
-
         script = f'{args.root_dir}/script/change_func.sh'
         command = ["/bin/bash", script]
         return command

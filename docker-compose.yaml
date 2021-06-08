@@ -11,8 +11,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: "32gb"
-          cpus: "32"
+          memory: "8gb"
+          cpus: "12"
         reservations:
           devices:
             - driver: nvidia

@@ -27,7 +27,6 @@ from detectron2.evaluation import (
 
 root_dir = os.path.join("/".join(os.path.abspath(__file__).split(os.path.sep)[:-2]))
 sys.path.insert(1, root_dir)
-import dataset.register_custom_dataset as customDataset
 
 
 class Trainer(DefaultTrainer):
@@ -123,8 +122,11 @@ def test(args):
 
 
 if __name__ == "__main__":
+    import dataset.register_custom_dataset as customDataset
     customDataset.regist_custom_dataset('/home/appuser/dataset/COCO2017')
-    args = default_argument_parser().parse_args()
+    parser = default_argument_parser()
+    args = parser.parse_args()
+
     launch(
         test,
         args.num_gpus,

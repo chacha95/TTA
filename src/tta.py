@@ -2,7 +2,6 @@ import copy
 import numpy as np
 from contextlib import contextmanager
 from itertools import count
-from typing import List
 import torch
 from fvcore.transforms import HFlipTransform, NoOpTransform
 from torch import nn
@@ -24,21 +23,9 @@ __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
 
 class TTA(object):
-    _flip: bool = False
-    _multi_scale_mins: List[int] = []
-    _contrast_trans: List[float] = []
-
-    @classmethod
-    def set_multi_scale(cls, multi_scale: List[int]):
-        cls._multi_scale_mins = multi_scale
-
-    @classmethod
-    def set_flip(cls, flip: bool):
-        cls._flip = flip
-
-    @classmethod
-    def set_contrast(cls, contrast_trans: List[float]):
-        cls._contrast_trans = contrast_trans
+    _flip = False
+    _multi_scale_mins = [300, 400]
+    _contrast_trans = [1.0, 1.0]
 
     @classmethod
     def get_multi_scale(cls):
@@ -49,7 +36,7 @@ class TTA(object):
         return cls._flip
 
     @classmethod
-    def get_contrast_trans(cls):
+    def get_contrast(cls):
         return cls._contrast_trans
 
 
@@ -63,16 +50,17 @@ class DatasetMapperTTA:
     """
 
     @configurable
-    def __init__(self, min_sizes: List[int], max_size: int, flip: bool):
+    def __init__(self):
         """
         Args:
             min_sizes: list of short-edge size to resize the image to
             max_size: maximum height or width of resized images
             flip: whether to apply flipping augmentation
         """
-        self.min_sizes = min_sizes
-        self.max_size = max_size
-        self.flip = flip
+        self.min_sizes = TTA.get_multi_scale()
+        self.contrast = TTA.get_contrast()
+        self.flip = TTA.get_flip()
+        self.max_size = 4000
 
     @classmethod
     def from_config(cls, cfg):
@@ -86,7 +74,6 @@ class DatasetMapperTTA:
         """
         Args:
             dict: a dict in standard model input format. See tutorials for details.
-
         Returns:
             list[dict]:
                 a list of dicts, which contain augmented version of the input image.
@@ -145,16 +132,8 @@ class GeneralizedRCNNWithTTA(nn.Module):
         if isinstance(model, DistributedDataParallel):
             model = model.module
         self.cfg = cfg.clone()
-        assert not self.cfg.MODEL.KEYPOINT_ON, "TTA for keypoint is not supported yet"
-        assert (
-            not self.cfg.MODEL.LOAD_PROPOSALS
-        ), "TTA for pre-computed proposals is not supported yet"
-
         self.model = model
-
-        if tta_mapper is None:
-            tta_mapper = DatasetMapperTTA(cfg)
-        self.tta_mapper = tta_mapper
+        self.tta_mapper = DatasetMapperTTA(cfg)
         self.batch_size = batch_size
 
     @contextmanager
