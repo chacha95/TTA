@@ -39,10 +39,11 @@ RUN sudo wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_r
      -O "/home/appuser/src/model/faster_rcnn_R_50_FPN_3x.pkl"
 
 # install COCO2017 dataset
-ENV COCO_IMG="/home/appuser/dataset/COCO2017/val2017.zip"
-ENV COCO_ANNOTATION="/home/appuser/dataset/COCO2017/annotations_trainval2017.zip"
+ENV COCO_DIR="/home/appuser/dataset/COCO2017"
+ENV COCO_IMG="${COCO_DIR}/val2017.zip"
+ENV COCO_ANNOTATION="${COCO_DIR}/annotations_trainval2017.zip"
 RUN sudo mkdir -p "/home/appuser/dataset/COCO2017"
 RUN sudo wget "http://images.cocodataset.org/zips/val2017.zip" -O "${COCO_IMG}" \
-    && sudo unzip "${COCO_IMG}" && sudo rm -rf "${COCO_IMG}"
+    && sudo unzip "${COCO_IMG}" -d "${COCO_DIR}" && sudo rm -rf "${COCO_IMG}"
 RUN sudo wget "http://images.cocodataset.org/annotations/annotations_trainval2017.zip" -O "${COCO_ANNOTATION}" \
-    && sudo unzip "${COCO_ANNOTATION}" && sudo rm -rf "${COCO_ANNOTATION}"
+    && sudo unzip "${COCO_ANNOTATION}" -d "${COCO_DIR}" && sudo rm -rf "${COCO_ANNOTATION}"
