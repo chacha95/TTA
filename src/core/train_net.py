@@ -113,12 +113,10 @@ def test(args):
     cfg = setup(args)
     model = Trainer.build_model(cfg)
     DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(cfg.MODEL.WEIGHTS, resume=args.resume)
-    res = Trainer.test(cfg, model)
-    print('-------------------------------------------------------------------------------------------')
     if cfg.TEST.AUG.ENABLED:
-        print('--------------------------------------work?--------------------------------------------------')
-        print('-------------------------------------------------------------------------------------------')
-        res.update(Trainer.test_with_TTA(cfg, model))
+        res = Trainer.test_with_TTA(cfg, model)
+    else:
+        res = Trainer.test(cfg, model)
     if comm.is_main_process():
         verify_results(cfg, res)
     return res

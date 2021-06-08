@@ -19,7 +19,7 @@ class Detectron2Header(object):
 
     @classmethod
     def tta(cls, args) -> List[str]:
-        if args.aug:
+        if args.TTA:
             if args.flip:
                 TTA.set_flip(flip=True)
             if args.multi_scale:
@@ -45,11 +45,10 @@ class Detectron2Header(object):
                    "DATALOADER.NUM_WORKERS", args.num_worker,
                    "MODEL.ROI_HEADS.NUM_CLASSES", args.num_class,
                    "INPUT.CROP.SIZE", "[1.0, 1.0]",
-                   "CUDNN_BENCHMARK", "False",
-                   "TEST.AUG.ENABLED", "True"]
+                   "CUDNN_BENCHMARK", "False"]
 
         # augmentation options
-        # if args.aug is True:
-        #     command.extend(["TEST.AUG.ENABLED", "True"])
+        if args.TTA is True:
+            command.extend(["TEST.AUG.ENABLED", "True"])
 
         return command

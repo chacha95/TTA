@@ -141,13 +141,9 @@ class GeneralizedRCNNWithTTA(nn.Module):
                 `DatasetMapperTTA(cfg)`.
             batch_size (int): batch the augmented images into this batch size for inference.
         """
-        from .meta_arch import GeneralizedRCNN
         super().__init__()
         if isinstance(model, DistributedDataParallel):
             model = model.module
-        assert isinstance(
-            model, GeneralizedRCNN
-        ), "TTA is only supported on GeneralizedRCNN. Got a model of type {}".format(type(model))
         self.cfg = cfg.clone()
         assert not self.cfg.MODEL.KEYPOINT_ON, "TTA for keypoint is not supported yet"
         assert (
