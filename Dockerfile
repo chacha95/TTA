@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-    && apt-get install -y apt-utils ca-certificates wget unzip git sudo python3-opencv python3-dev \
+    && apt-get install -y apt-utils ca-certificates wget unzip git vim sudo python3-opencv python3-dev \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
@@ -47,3 +47,5 @@ RUN sudo wget "http://images.cocodataset.org/zips/val2017.zip" -O "${COCO_IMG}" 
     && sudo unzip "${COCO_IMG}" -d "${COCO_DIR}" && sudo rm -rf "${COCO_IMG}"
 RUN sudo wget "http://images.cocodataset.org/annotations/annotations_trainval2017.zip" -O "${COCO_ANNOTATION}" \
     && sudo unzip "${COCO_ANNOTATION}" -d "${COCO_DIR}" && sudo rm -rf "${COCO_ANNOTATION}"
+
+WORKDIR /home/appuser/src

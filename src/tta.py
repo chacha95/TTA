@@ -1,14 +1,12 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 import copy
 import numpy as np
-from contextlib import contextmanager
 from itertools import count
 from typing import List
-import torch
-from fvcore.transforms import HFlipTransform, NoOpTransform
 from torch import nn
-from torch.nn.parallel import DistributedDataParallel
+import torch
 
+from fvcore.transforms import HFlipTransform, NoOpTransform
 from detectron2.config import configurable
 from detectron2.data.detection_utils import read_image
 from detectron2.data.transforms import (
@@ -17,11 +15,7 @@ from detectron2.data.transforms import (
     ResizeTransform,
     apply_augmentations
 )
-from detectron2.structures import Boxes, Instances
-
-from .meta_arch import GeneralizedRCNN
-from .postprocessing import detector_postprocess
-from .roi_heads.fast_rcnn import fast_rcnn_inference_single_image
+from detectron2_repo.detectron2.modeling.roi_heads.fast_rcnn import fast_rcnn_inference_single_image
 
 __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
@@ -36,18 +30,23 @@ __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 # image_transformed = input.image  # new image
 
 
-# this parameter change!
 class TTA(object):
     _flip = False
     _multi_scale_mins = []
-    _multi_scale_max = None
+    _multi_scale_max = 4000
     _color_trans = []
 
-    # enable augmentation
-    # _flip = True
-    # _multi_scale_mins = [400, 500, 600, 700, 800, 900, 1000, 1100, 1200]
-    # _multi_scale_max = 4000
-    # _color_trans = True
+    @classmethod
+    def set_multi_scale(cls, multi_scale):
+        cls._multi_scale_mins = multi_scale
+
+    @classmethod
+    def set_flip(cls, flip):
+        cls._flip = flip
+
+    @classmethod
+    def set_color_trans(cls, color_trans):
+        cls._color_trans = color_trans
 
     @classmethod
     def get_multi_scale(cls):
