@@ -25,7 +25,7 @@ from detectron2.evaluation import (
     verify_results,
 )
 
-root_dir = os.path.join("/".join(os.    path.abspath(__file__).split(os.path.sep)[:-2]))
+root_dir = os.path.join("/".join(os.path.abspath(__file__).split(os.path.sep)[:-2]))
 sys.path.insert(1, root_dir)
 import dataset.register_custom_dataset as customDataset
 
@@ -114,7 +114,10 @@ def test(args):
     model = Trainer.build_model(cfg)
     DetectionCheckpointer(model, save_dir=cfg.OUTPUT_DIR).resume_or_load(cfg.MODEL.WEIGHTS, resume=args.resume)
     res = Trainer.test(cfg, model)
+    print('-------------------------------------------------------------------------------------------')
     if cfg.TEST.AUG.ENABLED:
+        print('--------------------------------------work?--------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------')
         res.update(Trainer.test_with_TTA(cfg, model))
     if comm.is_main_process():
         verify_results(cfg, res)
@@ -122,11 +125,8 @@ def test(args):
 
 
 if __name__ == "__main__":
-    parser = default_argument_parser()
-    parser.add_argument('--datapath', help='dataset path')
-    args = parser.parse_args()
-    # register custom dataset
-    customDataset.regist_custom_dataset(args.datapath)
+    customDataset.regist_custom_dataset('/home/appuser/dataset/COCO2017')
+    args = default_argument_parser().parse_args()
     launch(
         test,
         args.num_gpus,

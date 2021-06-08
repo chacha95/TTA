@@ -32,12 +32,6 @@ RUN pip install --no-cache-dir --user 'git+https://github.com/facebookresearch/f
 RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
 RUN pip install --no-cache-dir --user -e detectron2_repo
 
-# COPY directory
-COPY src /home/appuser/src
-# pretrained model download
-RUN sudo wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl" \
-     -O "/home/appuser/src/model/faster_rcnn_R_50_FPN_3x.pkl"
-
 # install COCO2017 dataset
 ENV COCO_DIR="/home/appuser/dataset/COCO2017"
 ENV COCO_IMG="${COCO_DIR}/val2017.zip"
@@ -48,4 +42,9 @@ RUN sudo wget "http://images.cocodataset.org/zips/val2017.zip" -O "${COCO_IMG}" 
 RUN sudo wget "http://images.cocodataset.org/annotations/annotations_trainval2017.zip" -O "${COCO_ANNOTATION}" \
     && sudo unzip "${COCO_ANNOTATION}" -d "${COCO_DIR}" && sudo rm -rf "${COCO_ANNOTATION}"
 
+# COPY source code
+COPY src /home/appuser/src
+# pretrained model download
+RUN sudo wget "https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl" \
+     -O "/home/appuser/src/model/faster_rcnn_R_50_FPN_3x.pkl"
 WORKDIR /home/appuser/src
