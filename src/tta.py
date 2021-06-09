@@ -116,10 +116,6 @@ class DatasetMapperTTA:
             resize = ResizeShortestEdge(min_size, self.max_size)
             aug_candidates.append([resize])
 
-            # if self.flip:
-            #     flip = RandomFlip(prob=1.0)
-            #     aug_candidates.append([resize, flip])  # resize + flip
-
 # ----------------------------------------Changed code------------------------------------------
         # Apply all the augmentations
         ret = []
