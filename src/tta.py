@@ -49,7 +49,7 @@ class TTA(object):
     """
     _flip: bool = True
     _multi_scale: List[int] = [400, 600, 800, 1000]
-    _contrast: List[float] = [0.95, 1.05]
+    _contrast: List[float] = []
 
     @classmethod
     def get_multi_scale(cls):
