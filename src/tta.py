@@ -40,15 +40,15 @@ class TTA(object):
             _contrast: List[float] = []
         multi scale only:
             _flip: bool = False
-            _multi_scale: List[int] = [300, 400, 500, 600]
+            _multi_scale: List[int] = [400, 600, 800, 1000]
             _contrast: List[float] = []
         contrast only:
             _flip: bool = False
             _multi_scale: List[int] = []
-            _contrast: List[float] = [0.9, 1.2]
+            _contrast: List[float] = [0.95, 1.05]
     """
     _flip: bool = False
-    _multi_scale: List[int] = [400]
+    _multi_scale: List[int] = []
     _contrast: List[float] = []
 
     @classmethod
