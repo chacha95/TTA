@@ -39,4 +39,4 @@ Or check a log which located in `/home/src/model/log.txt`.
 `contrast` = [0.9, 1.1]<br>
 ### total input image for TTA is 15
 **baseline AP: 40.2161**<br>
-**best AP: 41.2**
+**best AP: 41.6996**
