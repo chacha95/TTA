@@ -36,24 +36,24 @@ class TTA(object):
     Examples:
         flip only:
             _flip: bool = True
-            _multi_sale: List[int] = []
-            _contrast: List[float] = [1.0, 1.0]
+            _multi_scale: List[int] = []
+            _contrast: List[float] = []
         multi scale only:
             _flip: bool = False
-            _multi_sale: List[int] = [300, 400, 500, 600]
-            _contrast: List[float] = [1.0, 1.0]
+            _multi_scale: List[int] = [300, 400, 500, 600]
+            _contrast: List[float] = []
         contrast only:
             _flip: bool = False
-            _multi_sale: List[int] = []
+            _multi_scale: List[int] = []
             _contrast: List[float] = [0.9, 1.2]
     """
-    _flip: bool = True
-    _multi_sale: List[int] = []
+    _flip: bool = False
+    _multi_scale: List[int] = []
     _contrast: List[float] = [1.0, 1.0]
 
     @classmethod
     def get_multi_scale(cls):
-        return cls._multi_sale
+        return cls._multi_scale
 
     @classmethod
     def get_flip(cls):
@@ -108,9 +108,13 @@ class DatasetMapperTTA:
             flip = RandomFlip(prob=1.0, horizontal=True, vertical=False)
             aug_candidates.append([flip])
 
-        # for min_size in self.min_sizes:
-        #     resize = ResizeShortestEdge(min_size, self.max_size)
-        #     aug_candidates.append([resize])
+        if self.contrast:
+            contrast = RandomContrast(self.contrast[0], self.contrast[1])
+            aug_candidates.append([contrast])
+
+        for min_size in self.min_sizes:
+            resize = ResizeShortestEdge(min_size, self.max_size)
+            aug_candidates.append([resize])
 
             # if self.flip:
             #     flip = RandomFlip(prob=1.0)
