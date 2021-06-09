@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_gpu', type=str, default='1', help='number of gpu for training')
     parser.add_argument('--batch_size', type=str, default='1', help='number of batch')
     # ----------------------------------------TTA options----------------------------------------
-    parser.add_argument('--TTA', type=bool, default=True, help='Augmentation option')
+    parser.add_argument('--TTA', type=bool, default=False, help='Augmentation option')
     # -------------------------------------------------------------------------------------------
     args = parser.parse_args()
 

@@ -28,7 +28,7 @@ In `tta.py`, Hyperparameter _contrast set to `True`.
 
 ## 3. Just run code
 After setting TTA parameters. <br>
-Run `python3 run.py`.
+Run `python run.py`.
 
 ## 4. check the test AP in your terminal.
 Or check a log which located in `/home/src/model/log.txt`.

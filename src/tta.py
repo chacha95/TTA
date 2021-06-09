@@ -47,8 +47,8 @@ class TTA(object):
             _multi_sale: List[int] = []
             _contrast: List[float] = [0.9, 1.2]
     """
-    _flip: bool = False
-    _multi_sale: List[int] = [400, 600, 800, 1000]
+    _flip: bool = True
+    _multi_sale: List[int] = []
     _contrast: List[float] = [1.0, 1.0]
 
     @classmethod
@@ -104,9 +104,13 @@ class DatasetMapperTTA:
 
         # Create all combinations of augmentations to use
         aug_candidates = []  # each element is a list[Augmentation]
-        for min_size in self.min_sizes:
-            resize = ResizeShortestEdge(min_size, self.max_size)
-            aug_candidates.append([resize])
+        if self.flip:
+            flip = RandomFlip(prob=1.0, horizontal=True, vertical=False)
+            aug_candidates.append([flip])
+
+        # for min_size in self.min_sizes:
+        #     resize = ResizeShortestEdge(min_size, self.max_size)
+        #     aug_candidates.append([resize])
 
             # if self.flip:
             #     flip = RandomFlip(prob=1.0)

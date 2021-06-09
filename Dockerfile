@@ -2,7 +2,7 @@ FROM nvidia/cuda:10.1-cudnn7-devel
 ENV LC_ALL C.UTF-8
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
-    && apt-get install -y python3-opencv ca-certificates python3-dev wget git unzip \
+    && apt-get install -y python3-opencv ca-certificates python3-dev wget git unzip vim \
     && rm -rf /var/lib/apt/lists/*
 RUN ln -sv /usr/bin/python3 /usr/bin/python
 
