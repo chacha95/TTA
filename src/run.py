@@ -18,6 +18,9 @@ if __name__ == "__main__":
     parser.add_argument('--num_class', type=str, default='80', help='number of classes in given dataset')
     parser.add_argument('--num_gpu', type=str, default='1', help='number of gpu for training')
     parser.add_argument('--batch_size', type=str, default='1', help='number of batch')
+    # ----------------------------------------TTA options----------------------------------------
+    parser.add_argument('--TTA', type=bool, default=True, help='Augmentation option')
+    # -------------------------------------------------------------------------------------------
     args = parser.parse_args()
 
     Detectron2Header.test(args)

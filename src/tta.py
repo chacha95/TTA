@@ -1,3 +1,4 @@
+from typing import List
 import copy
 import numpy as np
 from contextlib import contextmanager
@@ -23,13 +24,23 @@ __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
 
 class TTA(object):
-    _flip = False
-    _multi_scale_mins = [300, 400]
-    _contrast_trans = [1.0, 1.0]
+    """
+    Set TTA options.
+
+    _flip: do horizontal flip?
+    _multi_scale: Takes target size as input and randomly scales the given target size.
+    _contrast: Contrast intensity is uniformly sampled in (intensity_min, intensity_max).
+               intensity < 1 will reduce contrast
+               intensity = 1 will preserve the input image
+               intensity > 1 will increase contrast
+    """
+    _flip: bool = False
+    _multi_sale: List[int] = [300, 400]
+    _contrast: List[float] = [1.0, 1.0]
 
     @classmethod
     def get_multi_scale(cls):
-        return cls._multi_scale_mins
+        return cls._multi_sale
 
     @classmethod
     def get_flip(cls):
@@ -37,26 +48,12 @@ class TTA(object):
 
     @classmethod
     def get_contrast(cls):
-        return cls._contrast_trans
+        return cls._contrast
 
 
 class DatasetMapperTTA:
-    """
-    Implement test-time augmentation for detection data.
-    It is a callable which takes a dataset dict from a detection dataset,
-    and returns a list of dataset dicts where the images
-    are augmented from the input image by the transformations defined in the config.
-    This is used for test-time augmentation.
-    """
-
     @configurable
-    def __init__(self):
-        """
-        Args:
-            min_sizes: list of short-edge size to resize the image to
-            max_size: maximum height or width of resized images
-            flip: whether to apply flipping augmentation
-        """
+    def __init__(self, *args):
         self.min_sizes = TTA.get_multi_scale()
         self.contrast = TTA.get_contrast()
         self.flip = TTA.get_flip()
@@ -90,21 +87,24 @@ class DatasetMapperTTA:
         else:
             pre_tfm = NoOpTransform()
 
+# ----------------------------------------Changed code------------------------------------------
+
         # Create all combinations of augmentations to use
         aug_candidates = []  # each element is a list[Augmentation]
         for min_size in self.min_sizes:
             resize = ResizeShortestEdge(min_size, self.max_size)
-            aug_candidates.append([resize])  # resize only
-            if self.flip:
-                flip = RandomFlip(prob=1.0)
-                aug_candidates.append([resize, flip])  # resize + flip
+            aug_candidates.append([resize])
 
+            # if self.flip:
+            #     flip = RandomFlip(prob=1.0)
+            #     aug_candidates.append([resize, flip])  # resize + flip
+
+# ----------------------------------------Changed code------------------------------------------
         # Apply all the augmentations
         ret = []
         for aug in aug_candidates:
             new_image, tfms = apply_augmentations(aug, np.copy(numpy_image))
             torch_image = torch.from_numpy(np.ascontiguousarray(new_image.transpose(2, 0, 1)))
-
             dic = copy.deepcopy(dataset_dict)
             dic["transforms"] = pre_tfm + tfms
             dic["image"] = torch_image
@@ -141,8 +141,7 @@ class GeneralizedRCNNWithTTA(nn.Module):
         """
         Open a context where some heads in `model.roi_heads` are temporarily turned off.
         Args:
-            attr (list[str]): the attribute in `model.roi_heads` which can be used
-                to turn off a specific head, e.g., "mask_on", "keypoint_on".
+            attr (list[str]): the attribute in `model.roi_heads`
         """
         roi_heads = self.model.roi_heads
         old = {}
@@ -217,9 +216,7 @@ class GeneralizedRCNNWithTTA(nn.Module):
         orig_shape = (input["height"], input["width"])
         augmented_inputs, tfms = self._get_augmented_inputs(input)
         # Detect boxes from all augmented versions
-        with self._turn_off_roi_heads(["mask_on", "keypoint_on"]):
-            # temporarily disable roi heads
-            all_boxes, all_scores, all_classes = self._get_augmented_boxes(augmented_inputs, tfms)
+        all_boxes, all_scores, all_classes = self._get_augmented_boxes(augmented_inputs, tfms)
         # merge all detected boxes to obtain final predictions for boxes
         merged_instances = self._merge_detections(all_boxes, all_scores, all_classes, orig_shape)
         return {"instances": merged_instances}
@@ -282,14 +279,3 @@ class GeneralizedRCNNWithTTA(nn.Module):
             )
             augmented_instances.append(aug_instances)
         return augmented_instances
-
-    def _reduce_pred_masks(self, outputs, tfms):
-        # Should apply inverse transforms on masks.
-        # We assume only resize & flip are used. pred_masks is a scale-invariant
-        # representation, so we handle flip specially
-        for output, tfm in zip(outputs, tfms):
-            if any(isinstance(t, HFlipTransform) for t in tfm.transforms):
-                output.pred_masks = output.pred_masks.flip(dims=[3])
-        all_pred_masks = torch.stack([o.pred_masks for o in outputs], dim=0)
-        avg_pred_masks = torch.mean(all_pred_masks, dim=0)
-        return avg_pred_masks
