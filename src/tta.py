@@ -26,16 +26,15 @@ __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 class TTA(object):
     """
     Set TTA options.
-
     _flip: do horizontal flip?
-    _multi_scale: Takes target size as input and randomly scales the given target size.
+    _multi_scale: Takes target size as input and randomly scales the given target size(Scale the shorter edge).
     _contrast: Contrast intensity is uniformly sampled in (intensity_min, intensity_max).
                intensity < 1 will reduce contrast
                intensity = 1 will preserve the input image
                intensity > 1 will increase contrast
     """
     _flip: bool = False
-    _multi_sale: List[int] = [300, 400]
+    _multi_sale: List[int] = [300, 400, 500, 600]
     _contrast: List[float] = [1.0, 1.0]
 
     @classmethod
