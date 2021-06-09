@@ -36,7 +36,7 @@ Or check a log which located in `/home/src/model/log.txt`.
 ## 5. Best Result(default setting)
 `flip` = True <br>
 `multi_scale` = [400, 600, 800, 1000] <br>
-`contrast` = [0.9, 1.1]<br>
+`contrast` = [ ]<br>
 ### total input image for TTA is 15
 **baseline AP: 40.2161**<br>
 **best AP: 41.6996**
