@@ -47,9 +47,9 @@ class TTA(object):
             _multi_scale: List[int] = []
             _contrast: List[float] = [0.95, 1.05]
     """
-    _flip: bool = False
-    _multi_scale: List[int] = []
-    _contrast: List[float] = []
+    _flip: bool = True
+    _multi_scale: List[int] = [400, 600, 800, 1000]
+    _contrast: List[float] = [0.95, 1.05]
 
     @classmethod
     def get_multi_scale(cls):
@@ -112,22 +112,22 @@ class DatasetMapperTTA:
             for min_size in self.min_sizes:
                 resize = ResizeShortestEdge(min_size, self.max_size)
                 aug_candidates.append([resize])
+                # use multi scale + flip
+                if self.flip:
+                    aug_candidates.append([resize, flip])
+                # use multi scale + contrast
+                if self.contrast:
+                    aug_candidates.append([resize, contrast])
                 # use multi scale + flip + contrast
                 if self.flip and self.contrast:
                     aug_candidates.append([resize, flip, contrast])
-                # use multi scale + flip
-                elif self.flip:
-                    aug_candidates.append([resize, flip])
-                # use multi scale + contrast
-                elif self.contrast:
-                    aug_candidates.append([resize, contrast])
 
         # only use horizontal flip
-        if self.flip:
+        elif self.flip:
             aug_candidates.append([flip])
 
         # only use contrast
-        if self.contrast:
+        elif self.contrast:
             aug_candidates.append([contrast])
 
 # ----------------------------------------Changed code------------------------------------------
