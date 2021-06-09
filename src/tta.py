@@ -107,7 +107,7 @@ class DatasetMapperTTA:
         if self.contrast:
             contrast = RandomContrast(self.contrast[0], self.contrast[1])
 
-        # only use multi scale
+        # use multi scale
         if self.min_sizes:
             for min_size in self.min_sizes:
                 resize = ResizeShortestEdge(min_size, self.max_size)
@@ -122,12 +122,10 @@ class DatasetMapperTTA:
                 if self.flip and self.contrast:
                     aug_candidates.append([resize, flip, contrast])
 
-        # only use horizontal flip
-        elif self.flip:
+        if self.flip:
             aug_candidates.append([flip])
 
-        # only use contrast
-        elif self.contrast:
+        if self.contrast:
             aug_candidates.append([contrast])
 
 # ----------------------------------------Changed code------------------------------------------
