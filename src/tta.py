@@ -32,9 +32,23 @@ class TTA(object):
                intensity < 1 will reduce contrast
                intensity = 1 will preserve the input image
                intensity > 1 will increase contrast
+
+    Examples:
+        flip only:
+            _flip: bool = True
+            _multi_sale: List[int] = []
+            _contrast: List[float] = [1.0, 1.0]
+        multi scale only:
+            _flip: bool = False
+            _multi_sale: List[int] = [300, 400, 500, 600]
+            _contrast: List[float] = [1.0, 1.0]
+        contrast only:
+            _flip: bool = False
+            _multi_sale: List[int] = []
+            _contrast: List[float] = [0.9, 1.2]
     """
     _flip: bool = False
-    _multi_sale: List[int] = [300, 400, 500, 600]
+    _multi_sale: List[int] = [400, 600, 800, 1000]
     _contrast: List[float] = [1.0, 1.0]
 
     @classmethod
@@ -52,7 +66,7 @@ class TTA(object):
 
 class DatasetMapperTTA:
     @configurable
-    def __init__(self, *args):
+    def __init__(self, **kwargs):
         self.min_sizes = TTA.get_multi_scale()
         self.contrast = TTA.get_contrast()
         self.flip = TTA.get_flip()

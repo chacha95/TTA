@@ -123,7 +123,7 @@ def test(args):
 
 if __name__ == "__main__":
     import dataset.register_custom_dataset as customDataset
-    customDataset.regist_custom_dataset('/home/appuser/dataset/COCO2017')
+    customDataset.regist_custom_dataset('/home/dataset/COCO2017')
     parser = default_argument_parser()
     args = parser.parse_args()
 
