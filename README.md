@@ -9,17 +9,17 @@ In `run.py`and `tta.py` file, you can change Hyperparameters of TTA.
 ### 2.2. horizontal flip
 **Flip the image horizontally.**<br>
 In `run.py`, Hyperparameter `args.TTA` must be `True`. <br>
-In `tta.py`, Hyperparameter _flip set to `True`.
+In `tta.py`, Hyperparameter `_flip` set to `True`.
 
 ### 2.3. multi scale
 **Resize the given size.<br>
 Number of input image for TTA are 10 => (9 images are resized, 1 image is original size)**<br>
 In `run.py`, Hyperparameter `args.TTA` must be `True`. <br>
-In `tta.py`, Hyperparameter _multi_sale set by `list`.
+In `tta.py`, Hyperparameter `_multi_scale` set by `list`.
 
 ### 2.4. contrast
 In `run.py`, Hyperparameter `args.TTA` must be `True`. <br>
-In `tta.py`, Hyperparameter _contrast set to `True`.
+In `tta.py`, Hyperparameter `_contrast` set to `True`.
 
 **Contrast intensity is uniformly sampled in (intensity_min, intensity_max).<br>
     - intensity < 1 will reduce contrast <br>
@@ -37,6 +37,5 @@ Or check a log which located in `/home/src/model/log.txt`.
 `flip` = True <br>
 `multi_scale` = [400, 600, 800, 1000] <br>
 `contrast` = [ ]<br>
-### total input image for TTA is 15
 **baseline AP: 40.2161**<br>
 **best AP: 41.6996**
