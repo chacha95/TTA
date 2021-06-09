@@ -99,22 +99,36 @@ class DatasetMapperTTA:
             pre_tfm = ResizeTransform(orig_shape[0], orig_shape[1], shape[0], shape[1])
         else:
             pre_tfm = NoOpTransform()
-
 # ----------------------------------------Changed code------------------------------------------
 
-        # Create all combinations of augmentations to use
-        aug_candidates = []  # each element is a list[Augmentation]
+        aug_candidates = []
         if self.flip:
             flip = RandomFlip(prob=1.0, horizontal=True, vertical=False)
-            aug_candidates.append([flip])
-
         if self.contrast:
             contrast = RandomContrast(self.contrast[0], self.contrast[1])
-            aug_candidates.append([contrast])
 
-        for min_size in self.min_sizes:
-            resize = ResizeShortestEdge(min_size, self.max_size)
-            aug_candidates.append([resize])
+        # only use multi scale
+        if self.min_sizes:
+            for min_size in self.min_sizes:
+                resize = ResizeShortestEdge(min_size, self.max_size)
+                aug_candidates.append([resize])
+                # use multi scale + flip + contrast
+                if self.flip and self.contrast:
+                    aug_candidates.append([resize, flip, contrast])
+                # use multi scale + flip
+                elif self.flip:
+                    aug_candidates.append([resize, flip])
+                # use multi scale + contrast
+                elif self.contrast:
+                    aug_candidates.append([resize, contrast])
+
+        # only use horizontal flip
+        if self.flip:
+            aug_candidates.append([flip])
+
+        # only use contrast
+        if self.contrast:
+            aug_candidates.append([contrast])
 
 # ----------------------------------------Changed code------------------------------------------
         # Apply all the augmentations
