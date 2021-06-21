@@ -23,6 +23,7 @@ from detectron2.structures import Boxes, Instances
 __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
 
+# ----------------------------------------Changed code------------------------------------------
 class TTA(object):
     """
     Set TTA options.
@@ -62,6 +63,7 @@ class TTA(object):
     @classmethod
     def get_contrast(cls):
         return cls._contrast
+# ----------------------------------------Changed code------------------------------------------
 
 
 class DatasetMapperTTA:
