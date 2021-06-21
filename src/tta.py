@@ -102,7 +102,6 @@ class DatasetMapperTTA:
         else:
             pre_tfm = NoOpTransform()
 # ----------------------------------------Changed code------------------------------------------
-
         aug_candidates = []
         if self.flip:
             flip = RandomFlip(prob=1.0, horizontal=True, vertical=False)
@@ -129,7 +128,6 @@ class DatasetMapperTTA:
 
         if self.contrast:
             aug_candidates.append([contrast])
-
 # ----------------------------------------Changed code------------------------------------------
         # Apply all the augmentations
         ret = []
@@ -233,6 +231,10 @@ class GeneralizedRCNNWithTTA(nn.Module):
         return augmented_inputs, tfms
 
     def _get_augmented_boxes(self, augmented_inputs, tfms):
+        """
+        This function inverse the transforms on bbox.
+        So you can get bbox from augmentation images and inverse to original image's bbox
+        """
         # 1: forward with all augmented images
         outputs = self._batch_inference(augmented_inputs)
         # 2: union the results
@@ -240,7 +242,6 @@ class GeneralizedRCNNWithTTA(nn.Module):
         all_scores = []
         all_classes = []
         for output, tfm in zip(outputs, tfms):
-            # Need to inverse the transforms on boxes, to obtain results on original image
             pred_boxes = output.pred_boxes.tensor
             original_pred_boxes = tfm.inverse().apply_box(pred_boxes.cpu().numpy())
             all_boxes.append(torch.from_numpy(original_pred_boxes).to(pred_boxes.device))
@@ -251,11 +252,17 @@ class GeneralizedRCNNWithTTA(nn.Module):
         return all_boxes, all_scores, all_classes
 
     def _merge_detections(self, all_boxes, all_scores, all_classes, shape_hw):
-        # select from the union of all results
+        """
+        This function aggregate all bbox from augmentation and original image.
+        And just put in `fast_rcnn_inference_single_image` function for final detection.
+        `fast_rcnn_inference_single_image` function filter results based on detection scores and NMS(Non-Maximum suppression) each bbox.
+        => they have score threshold and nms(bbox) threshold.
+        """
         num_boxes = len(all_boxes)
         num_classes = self.cfg.MODEL.ROI_HEADS.NUM_CLASSES
         # +1 because fast_rcnn_inference expects background scores as well
         all_scores_2d = torch.zeros(num_boxes, num_classes + 1, device=all_boxes.device)
+        # formatting
         for idx, cls, score in zip(count(), all_classes, all_scores):
             all_scores_2d[idx, cls] = score
 
